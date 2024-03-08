@@ -6,24 +6,24 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/j178/tiktoken-go"
-	"github.com/sashabaranov/go-openai"
+	"github.com/j178/llms/llms"
+	"github.com/j178/llms/schema"
 
 	"github.com/j178/chatgpt/tokenizer"
 )
 
 type ConversationManager struct {
 	file          string
-	globalConf    GlobalConfig
+	conf          *GlobalConfig
 	Conversations []*Conversation `json:"conversations"`
 	Idx           int             `json:"last_idx"`
 }
 
-func NewConversationManager(conf GlobalConfig, historyFile string) (*ConversationManager, error) {
+func NewConversationManager(conf *GlobalConfig, historyFile string) (*ConversationManager, error) {
 	h := &ConversationManager{
-		file:       historyFile,
-		globalConf: conf,
-		Idx:        -1,
+		file: historyFile,
+		conf: conf,
+		Idx:  -1,
 	}
 
 	err := h.Load()
@@ -66,11 +66,7 @@ func (m *ConversationManager) Load() error {
 	if err != nil {
 		return err
 	}
-	for i, c := range m.Conversations {
-		_, err = tiktoken.ForModel(c.Config.Model)
-		if err != nil {
-			return fmt.Errorf("invalid model %s in conversation %d", c.Config.Model, i+1)
-		}
+	for _, c := range m.Conversations {
 		c.manager = m
 	}
 	return nil
@@ -87,9 +83,9 @@ func (m *ConversationManager) New(conf ConversationConfig) *Conversation {
 }
 
 func (m *ConversationManager) FindByPrompt(prompt string) *Conversation {
-	prompt = m.globalConf.LookupPrompt(prompt)
+	prompt = m.conf.LookupPrompt(prompt)
 	for _, c := range m.Conversations {
-		if m.globalConf.LookupPrompt(c.Config.Prompt) == prompt {
+		if m.conf.LookupPrompt(c.Config.Prompt) == prompt {
 			return c
 		}
 	}
@@ -127,7 +123,7 @@ func (m *ConversationManager) Len() int {
 func (m *ConversationManager) Curr() *Conversation {
 	if len(m.Conversations) == 0 {
 		// create initial conversation using default config
-		return m.New(m.globalConf.Conversation)
+		return m.New(m.conf.DefaultConversation)
 	}
 	return m.Conversations[m.Idx]
 }
@@ -189,42 +185,24 @@ func (c *Conversation) UpdatePending(ans string, done bool) {
 	}
 }
 
-func (c *Conversation) GetContextMessages() []openai.ChatCompletionMessage {
-	messages := make([]openai.ChatCompletionMessage, 0, 2*len(c.Context)+2)
+func (c *Conversation) GetContextMessages() []llms.MessageContent {
+	messages := make([]llms.MessageContent, 0, 2*len(c.Context)+2)
 	messages = append(
-		messages, openai.ChatCompletionMessage{
-			Role:    openai.ChatMessageRoleSystem,
-			Content: c.manager.globalConf.LookupPrompt(c.Config.Prompt),
-		},
+		messages, makeMessage(schema.ChatMessageTypeSystem, c.manager.conf.LookupPrompt(c.Config.Prompt)),
 	)
-	for _, c := range c.Context {
-		messages = append(
-			messages, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleUser,
-				Content: c.Question,
-			},
-		)
-		messages = append(
-			messages, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleAssistant,
-				Content: c.Answer,
-			},
-		)
+	for _, qna := range c.Context {
+		messages = append(messages, makeMessage(schema.ChatMessageTypeHuman, qna.Question))
+		messages = append(messages, makeMessage(schema.ChatMessageTypeAI, qna.Answer))
 	}
 	if c.Pending != nil {
-		messages = append(
-			messages, openai.ChatCompletionMessage{
-				Role:    openai.ChatMessageRoleUser,
-				Content: c.Pending.Question,
-			},
-		)
+		messages = append(messages, makeMessage(schema.ChatMessageTypeHuman, c.Pending.Question))
 	}
 	return messages
 }
 
 func (c *Conversation) GetContextTokens() int {
 	if c.contextTokens == 0 {
-		c.contextTokens = tokenizer.CountMessagesTokens(c.Config.Model, c.GetContextMessages())
+		c.contextTokens = tokenizer.CountMessagesTokens(c.GetContextMessages())
 	}
 	return c.contextTokens
 }

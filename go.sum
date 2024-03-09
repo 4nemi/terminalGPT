@@ -94,6 +94,8 @@ github.com/iancoleman/orderedmap v0.3.0 h1:5cbR2grmZR/DiVt+VJopEhtVs9YGInGIxAoMJ
 github.com/iancoleman/orderedmap v0.3.0/go.mod h1:XuLcCUkdL5owUCQeF2Ue9uuw1EptkJDkXXS7VoV7XGE=
 github.com/j178/llms v0.0.0-20240308072738-c7a7cc6d3526 h1:K+AoczIoLgKZWYc13GEEKX56Qo61CnaxoxGllbEJHkM=
 github.com/j178/llms v0.0.0-20240308072738-c7a7cc6d3526/go.mod h1:jHZ1uDWp2QDPCvC1xO+v2ui1s/hM2xTsadgB9J0XV2Y=
+github.com/j178/llms v0.0.0-20240309144851-4f6414c2d918 h1:2RXJn2uXm1FVl0v/+1MlQHlMtQAw+R0Q/cJ8z/IVKKM=
+github.com/j178/llms v0.0.0-20240309144851-4f6414c2d918/go.mod h1:jHZ1uDWp2QDPCvC1xO+v2ui1s/hM2xTsadgB9J0XV2Y=
 github.com/j178/tiktoken-go v0.0.0-20240117113851-e3c3d064f380 h1:noHIYe3PKmO3aAEzPBhgLPvFm3a2U5LXW0xJp4ZPPjk=
 github.com/j178/tiktoken-go v0.0.0-20240117113851-e3c3d064f380/go.mod h1:/TI2+hAOsK7rY9X9sSB2yNrSim0EcUBrBlFTTsNuud0=
 github.com/lucasb-eyer/go-colorful v1.2.0 h1:1nnpGOrhyZZuNyfu1QjKiUICQ74+3FNCN69Aj6K7nkY=

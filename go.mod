@@ -9,7 +9,7 @@ require (
 	github.com/charmbracelet/glamour v0.6.0
 	github.com/charmbracelet/lipgloss v0.10.0
 	github.com/iancoleman/orderedmap v0.3.0
-	github.com/j178/llms v0.0.0-20240308072738-c7a7cc6d3526
+	github.com/j178/llms v0.0.0-20240309144851-4f6414c2d918
 	github.com/j178/tiktoken-go v0.0.0-20240117113851-e3c3d064f380
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mitchellh/go-homedir v1.1.0
